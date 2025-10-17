@@ -1,56 +1,44 @@
 package proyecto1;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class LectorArchivo {
-    
-    public int[] leerArchivo() {
+
+    /**
+     * Lee un archivo de texto con el formato:
+     * n
+     * ts,tr,p
+     * ...
+     * Devuelve una lista de tablones representada como una lista de arrays int[3].
+     */
+    public static List<int[]> leerArchivo() {
         Scanner scanner = new Scanner(System.in);
-        
         System.out.print("Ingrese la ruta del archivo: ");
         String ruta = scanner.nextLine();
-        
-        ArrayList<Integer> numeros = new ArrayList<>();
-        
+
+        List<int[]> finca = new ArrayList<>();
+
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
-            // Leer la primera línea (n)
             String primeraLinea = br.readLine();
             int n = Integer.parseInt(primeraLinea.trim());
-            
-            // Leer las siguientes n líneas
+
             for (int i = 0; i < n; i++) {
                 String linea = br.readLine();
-                if (linea != null) {
-                    // Separar por comas y convertir a enteros
-                    String[] valores = linea.split(",");
-                    for (String valor : valores) {
-                        numeros.add(Integer.parseInt(valor.trim()));
-                    }
-                }
+                if (linea == null || linea.isEmpty()) continue;
+                String[] valores = linea.split(",");
+                int ts = Integer.parseInt(valores[0].trim());
+                int tr = Integer.parseInt(valores[1].trim());
+                int p = Integer.parseInt(valores[2].trim());
+                finca.add(new int[]{ts, tr, p});
             }
-            
+
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
-            scanner.close();
-            return new int[0];
         } catch (NumberFormatException e) {
-            System.err.println("Error al convertir números: " + e.getMessage());
-            scanner.close();
-            return new int[0];
-        }
-        
-        // Convertir ArrayList a array primitivo
-        int[] resultado = new int[numeros.size()];
-        for (int i = 0; i < numeros.size(); i++) {
-            resultado[i] = numeros.get(i);
+            System.err.println("Formato incorrecto: el archivo contiene valores no numericos.");
         }
 
-        scanner.close();
-        
-        return resultado;
+        return finca;
     }
 }
