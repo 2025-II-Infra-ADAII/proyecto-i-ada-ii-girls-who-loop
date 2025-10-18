@@ -49,7 +49,7 @@ public class LectorArchivo {
             resultado[i] = numeros.get(i);
         }
 
-        scanner.close();
+        //scanner.close();
         
         return resultado;
     }
