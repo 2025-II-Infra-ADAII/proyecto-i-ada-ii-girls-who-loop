@@ -1,45 +1,65 @@
-# Informe de Implementación — Problema de la Mochila 0/1
+# Informe de Implementación — Problema del riego óptimo
 
 ## 0. Descripción del problema
 
-El **problema de la mochila 0/1** consiste en seleccionar un subconjunto de objetos con peso y valor, de manera que la suma de los pesos no exceda una capacidad máxima \(W\) y el valor total sea máximo.
+El objetivo es encontrar una **permutación óptima** $\pi$ de los tablones que **minimice** el costo total de riego de la finca dada.
 
 ### Definición formal
 
-- Conjunto de \(n\) objetos: \(\{1, 2, \ldots, n\}\).
-- Cada objeto \(i\) tiene:
-  - Peso \(w_i \in \mathbb{Z}^+\).
-  - Valor \(v_i \in \mathbb{Z}^+\).
-- Capacidad de la mochila: \(W\).
-- Objetivo:
-  \[
-  \max \sum*{i=1}^n v_i x_i \quad \text{sujeto a } \sum*{i=1}^n w_i x_i \leq W, \quad x_i \in \{0,1\}.
-  \]
+Dado un conjunto de $n$ tablones, cada uno con tres atributos:
+- **Tiempo de supervivencia** ($ts_i$): tiempo de supervivencia del tablón
+- **Tiempo de riego** ($tr_i$): tiempo que toma regar el tablón
+- **Prioridad** ($p_i$): prioridad del tablón
+Se busca obtener la mejor programación de riego para una finca, donde el costo de riego de un tablon $i$ está definido como:
+
+$
+\text{CRF}(i, t) = p_i \cdot \max(0, t + tr_i - ts_i)
+$
+
+donde $t$ es el tiempo de inicio del riego del tablón $i$.
 
 ### Ejemplo ilustrativo
 
-- Objetos:
-  1. \(w_1=2, v_1=3\)
-  2. \(w_2=3, v_2=4\)
-  3. \(w_3=4, v_3=5\)
-- Capacidad: \(W=5\).
+**Tablones:**
+1. $ts_1=5, tr_1=2, p_1=3$
+2. $ts_2=8, tr_2=3, p_2=2$
+3. $ts_3=6, tr_3=1, p_3=4$
 
-Subconjuntos válidos:
+**Objetivo:** Minimizar el costo total de riego comenzando en $t=0$.
 
-- \(\{1,2\}\): peso \(2+3=5\), valor \(3+4=7\) → **óptimo**.
-- \(\{1,3\}\): peso 6 → inválido.
+**Análisis de permutaciones:**
 
-La solución óptima es tomar los objetos 1 y 2 con valor total 7.
+- **Permutación [1,2,3]:**
+  - Tablón 1 en $t=0$: $\text{CRF}(1,0) = 3 \cdot \max(0, 0+2-5) = 3 \cdot 0 = 0$
+  - Tablón 2 en $t=2$: $\text{CRF}(2,2) = 2 \cdot \max(0, 2+3-8) = 2 \cdot 0 = 0$
+  - Tablón 3 en $t=5$: $\text{CRF}(3,5) = 4 \cdot \max(0, 5+1-6) = 4 \cdot 0 = 0$
+  - **Costo total: 0**
+
+- **Permutación [2,3,1]:**
+  - Tablón 2 en $t=0$: $\text{CRF}(2,0) = 2 \cdot \max(0, 0+3-8) = 2 \cdot 0 = 0$
+  - Tablón 3 en $t=3$: $\text{CRF}(3,3) = 4 \cdot \max(0, 3+1-6) = 4 \cdot 0 = 0$
+  - Tablón 1 en $t=4$: $\text{CRF}(1,4) = 3 \cdot \max(0, 4+2-5) = 3 \cdot 1 = 3$
+  - **Costo total: 3**
+
+- **Permutación [3,2,1]:**
+  - Tablón 3 en $t=0$: $\text{CRF}(3,0) = 4 \cdot \max(0, 0+1-6) = 4 \cdot 0 = 0$
+  - Tablón 2 en $t=1$: $\text{CRF}(2,1) = 2 \cdot \max(0, 1+3-8) = 2 \cdot 0 = 0$
+  - Tablón 1 en $t=4$: $\text{CRF}(1,4) = 3 \cdot \max(0, 4+2-5) = 3 \cdot 1 = 3$
+  - **Costo total: 3**
+
+**Solución óptima:** Permutación [1,2,3] con costo total **0**.
+
+**Observación:** Todos los tablones se riegan antes de su tiempo de supervivencia, evitando penalizaciones.
 
 ---
 
 ## 1. Lenguaje y herramientas usadas
 
-- **Lenguaje:** Python 3.
-- **Bibliotecas estándar:** `itertools`, `time`, `random`.
-- **Estructuras usadas:** listas, diccionarios y arreglos bidimensionales.
-- **Motivación de elección:** Python facilita la implementación de algoritmos y pruebas rápidas, sin necesidad de compilación compleja.
+- **Lenguaje:** Java 24
+- **Bibliotecas estándar:** `java.util`.
 
+- **Estructuras usadas:** Arrays, HashSet, HashMap y representación con Objects.
+- **Motivación de elección:** Java es robusto y de tipado Estático, permitiendo asi la detección temprana de errores, sus estructuras optimizadas facilitan la representación en las implementaciones.
 ---
 
 ## 2. Estructura del proyecto
@@ -106,20 +126,42 @@ $$
 
 ### b) Solución dinámica
 
-Definición recursiva:
+#### Subestructura óptima:
+El problema exhibe **subestructura óptima** porque:
+
+> **Si tenemos una solución óptima para regar un conjunto de tablones $S$ comenzando en tiempo $t$, entonces:**
+> - La decisión del **primer tablón** a regar (digamos $k$) es óptima
+> - La solución para el **subconjunto restante** $S \setminus \{k\}$ comenzando en tiempo $t + tr_k$ también debe ser óptima
+
+#### Relación de recurrencia:
+
+##### Definicion del estado
+Sea $DP[S, t]$ el **costo mínimo** para regar todos los tablones en el conjunto $S$, comenzando en el tiempo $t$.
+
+##### Caso base
+$$
+DP[\emptyset, t] = 0 \quad \text{(no hay tablones por regar)}
+$$
+
+##### Relación recursiva:
+Para un conjunto no vacío $S$ y tiempo $t$:
+
+$
+DP[S, t] = \min_{i \in S} \left\{ \text{CRF}(i, t) + DP[S \setminus \{i\}, t + tr_i] \right\}
+$
+
+Donde:
+- $\text{CRF}(i, t) = p_i \cdot \max(0, t + tr_i - ts_i)$ es el costo de regar el tablón $i$ en el tiempo $t$
+- $S \setminus \{i\}$ es el conjunto $S$ sin el tablón $i$
+- $t + tr_i$ es el nuevo tiempo después de regar el tablón $i$
+
+##### Solución al Problema Original
 
 $$
-V[i][w] =
-\begin{cases}
-V[i-1][w], & w_i > w \\
-\max\big(V[i-1][w],\; V[i-1][w-w_i] + v_i\big), & w_i \leq w
-\end{cases}
+\text{Costo Óptimo} = DP[S_{\text{inicial}}, 0]
 $$
 
-Donde $V[i][w]$ es el mejor valor con los primeros $i$ objetos y capacidad $w$.
-Se construye de manera **bottom-up** llenando una tabla bidimensional.
-
-**Ejemplo:** para $n=3, W=5$, se obtiene que $V[3][5]=7$, con los objetos 1 y 2.
+donde $S_{\text{inicial}} = \{0, 1, 2, \ldots, n-1\}$ (todos los tablones).
 
 ---
 
