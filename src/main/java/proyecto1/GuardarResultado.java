@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Clase encargada de guardar los resultados de la estrategia en un archivo de salida.
@@ -16,7 +15,7 @@ public class GuardarResultado {
      * 
      */
 
-    public static void guardar(Result resultado, String nombreArchivo) {
+    public static void guardar(Solution resultado, String nombreArchivo) {
 
         // Crear carpeta si no existe
         File carpetaSalidas = new File("src/main/resources/salidas");
@@ -36,8 +35,8 @@ public class GuardarResultado {
 
         // Crear archivo y escribir resultado
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivo))) {
-            bw.write(resultado.getCosto() + "\n");
-            for (int index : resultado.getOrden()) {
+            bw.write(resultado.getCrfTotal() + "\n");
+            for (int index : resultado.getProgramacionOptima()) {
                 bw.write(index + "\n");
             }
             System.out.println("Resultado guardado en: " + nombreArchivo);
