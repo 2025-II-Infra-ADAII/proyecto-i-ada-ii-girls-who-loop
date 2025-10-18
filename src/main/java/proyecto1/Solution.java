@@ -1,6 +1,9 @@
 package proyecto1;
 
+import java.util.*;
+
 public class Solution {
+
 
     public int crf_total;
     public int[] programacion_optima;
@@ -9,4 +12,6 @@ public class Solution {
         this.crf_total = crf_total;
         this.programacion_optima = programacion_optima;
     }
+    
 }
+
