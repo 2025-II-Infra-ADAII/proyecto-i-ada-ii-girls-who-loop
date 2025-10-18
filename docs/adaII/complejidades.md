@@ -56,15 +56,11 @@ donde:
 
 Si asumimos que el tiempo está **discretizado** o **acotado**, el número de subconjuntos domina:
 
-$$
-\text{Estados} = 2^n \cdot T_{\max}
-$$
+$\text{Estados} = 2^n \cdot T_{\max}$
 
 Sin embargo, en la práctica, **no todos los tiempos son alcanzables**, por lo que el número real de estados es:
 
-$
-\text{Estados}_{\text{reales}} \approx 2^n \cdot n
-$
+$\text{Estados}_{\text{reales}} \approx 2^n \cdot n$
 
 Esto porque el tiempo máximo está acotado por $\sum_{i=0}^{n-1} tr_i$.
 
@@ -78,16 +74,12 @@ Por cada estado, el algoritmo:
    - Llamada recursiva: $O(1)$ (por memoización)
 
 **Costo por estado:**
-$$
-T_{\text{estado}} = O(|S|^2) = O(n^2)
-$$
+$T_{\text{estado}} = O(|S|^2) = O(n^2)$
 
 #### Complejidad temporal total
 
 **Desglose:**
-$$
-\boxed{T(n) = O(n^2 \cdot 2^n)}
-$$
+$\boxed{T(n) = O(n^2 \cdot 2^n)}$
 
 - $2^n$: número de subconjuntos posibles de tablones
 - $n^2$: trabajo por cada estado (iteración + operaciones de conjunto)
