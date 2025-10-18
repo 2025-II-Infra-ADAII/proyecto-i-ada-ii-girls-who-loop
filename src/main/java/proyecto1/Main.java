@@ -1,6 +1,7 @@
 package proyecto1;
 
 import java.util.Scanner;
+import java.util.Arrays;
 
 public class Main {
 
@@ -14,13 +15,13 @@ public class Main {
         int[] farm = lector.leerArchivo();
 
         if (farm.length == 0) {
-            System.err.println("No se pudo leer el archivo o está vacío.");
+            System.err.println("No se pudo leer el archivo o esta vacio.");
             return;
         }
 
-        // Calcular número de tablones
+        // Calcular numero de tablones
         int n = farm.length / 3;
-        System.out.println("Número de tablones: " + n);
+        System.out.println("Numero de tablones: " + n);
 
         // Separar ts, tr, p
         int[] ts = new int[n];
@@ -33,20 +34,18 @@ public class Main {
             p[i]  = priorityValue(farm, i);
         }
 
-        // Medir tiempo de ejecución de la estrategia voraz
+        // Medir tiempo de ejecucion de la estrategia voraz
         long inicio = System.nanoTime();
         Result resultado = EstrategiaVoraz.roV(ts, tr, p, n);
         long fin = System.nanoTime();
 
-        // Calcular duración en milisegundos
+        // Calcular duracion en milisegundos
         double duracion = (fin - inicio) / 1_000_000.0;
 
-        
         // Mostrar resultado por consola
         System.out.println("Resultado de la estrategia voraz:");
         System.out.println(resultado);
-        System.out.printf("Tiempo de ejecución: %.4f ms%n", duracion);
-
+        System.out.printf("Tiempo de ejecucion: %.4f ms%n", duracion);
 
         // Guardar resultado en archivo
         Scanner scanner = new Scanner(System.in);
@@ -55,19 +54,43 @@ public class Main {
 
         GuardarResultado.guardar(resultado, nombreArchivo);
 
+        // ===================== ESTRATEGIA FUERZA BRUTA =====================
+        System.out.println("\n============= Estrategia Fuerza Bruta =============");
+        System.out.println("Ejecutando Fuerza Bruta con " + n + " tablones...");
+
+        long inicioFB = System.nanoTime();
+        Solution solFB = FuerzaBruta.roFB(farm);
+        long finFB = System.nanoTime();
+
+        double duracionFB = (finFB - inicioFB) / 1_000_000.0;
+
+        System.out.println("Costo minimo (FB): " + solFB.crf_total);
+        System.out.println("Orden optimo (FB): " + Arrays.toString(solFB.programacion_optima));
+        System.out.printf("Tiempo de ejecucion: %.4f ms%n", duracionFB);
+
+        String archivoFB = nombreArchivo + "_fuerzabruta.txt";
+
+        Result resultadoFB = new Result(
+            Arrays.stream(solFB.programacion_optima).boxed().toList(),
+            solFB.crf_total
+        );
+
+        GuardarResultado.guardar(resultadoFB, archivoFB);
+        System.out.println("Resultado de fuerza bruta guardado en: " + archivoFB);
+
         scanner.close();
     }
 
-
+    // ===================== Metodos auxiliares =====================
     public static int survivalValue(int[] farm, int indexTablon) {
-        return farm[indexTablon*3];
+        return farm[indexTablon * 3];
     }
 
     public static int wateredValue(int[] farm, int indexTablon) {
-        return farm[indexTablon*3 + 1];
+        return farm[indexTablon * 3 + 1];
     }
 
     public static int priorityValue(int[] farm, int indexTablon){
-        return farm[indexTablon*3 + 2];
+        return farm[indexTablon * 3 + 2];
     }
 }
