@@ -19,9 +19,9 @@ public class EstrategiaVoraz {
      * @param tr arreglo con tiempos de riego
      * @param p  arreglo con prioridades
      * @param n  número total de tablones
-     * @return objeto Result con el costo total y el orden de riego
+     * @return objeto Solution con el costo total y el orden de riego
      */
-    public static Result roV(int[] ts, int[] tr, int[] p, int n) {
+    public static Solution roV(int[] ts, int[] tr, int[] p, int n) {
 
         // Crear lista de índices (0, 1, 2, ..., n-1)
         List<Integer> indices = new ArrayList<>();
@@ -34,7 +34,8 @@ public class EstrategiaVoraz {
 
         int tiempoActual = 0;
         int costoTotal = 0;
-        List<Integer> orden = new ArrayList<>();
+        int[] orden = new int[n];
+        int index = 0;
 
         // Calcular costo total según el orden elegido
         for (int i : indices) {
@@ -43,10 +44,16 @@ public class EstrategiaVoraz {
             int penalizacion = p[i] * retraso;
 
             costoTotal += penalizacion;
-            orden.add(i);
+            orden[index] = i;
             tiempoActual = finRiego;
+            index++;
         }
 
-        return new Result(orden, costoTotal);
+        return new Solution(costoTotal, orden);
+    }
+
+    public static void main(String[] args) {
+        Solution sol = roV(new int[] {1,2,3}, new int[] {4,5,2}, new int[]{6,7,2}, 3);
+        System.out.println(sol.getCrfTotal());
     }
 }

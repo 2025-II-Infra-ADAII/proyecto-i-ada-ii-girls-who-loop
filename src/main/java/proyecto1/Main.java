@@ -1,7 +1,6 @@
 package proyecto1;
 
 import java.util.Scanner;
-import java.util.Arrays;
 
 public class Main {
 
@@ -36,7 +35,7 @@ public class Main {
 
         // Medir tiempo de ejecucion de la estrategia voraz
         long inicio = System.nanoTime();
-        Result resultado = EstrategiaVoraz.roV(ts, tr, p, n);
+        Solution resultado = EstrategiaVoraz.roV(ts, tr, p, n);
         long fin = System.nanoTime();
 
         // Calcular duracion en milisegundos
@@ -64,21 +63,50 @@ public class Main {
 
         double duracionFB = (finFB - inicioFB) / 1_000_000.0;
 
-        System.out.println("Costo minimo (FB): " + solFB.crf_total);
-        System.out.println("Orden optimo (FB): " + Arrays.toString(solFB.programacion_optima));
+        System.out.println("Costo minimo (FB): " + solFB.getCrfTotal());
+        System.out.println("Orden optimo (FB): " + solFB);
         System.out.printf("Tiempo de ejecucion: %.4f ms%n", duracionFB);
 
         String archivoFB = nombreArchivo + "_fuerzabruta.txt";
 
-        Result resultadoFB = new Result(
-            Arrays.stream(solFB.programacion_optima).boxed().toList(),
-            solFB.crf_total
+        Solution resultadoFB = new Solution(
+            solFB.getCrfTotal(),
+            solFB.getProgramacionOptima()
         );
 
         GuardarResultado.guardar(resultadoFB, archivoFB);
         System.out.println("Resultado de fuerza bruta guardado en: " + archivoFB);
 
         scanner.close();
+
+
+        // ===================== ESTRATEGIA PROGRAMACION DINAMICA =====================
+        System.out.println("\n============= Estrategia Programacion Dinamica =============");
+        System.out.println("Ejecutando Programacion Dinamica con " + n + " tablones...");
+
+        long inicioPD = System.nanoTime();
+        Solution solPD = ProgramacionDinamica.roPD(farm);
+        long finPD = System.nanoTime();
+
+        double duracionPD = (finPD - inicioPD) / 1_000_000.0;
+
+        System.out.println("Costo minimo (PD): " + solPD.getCrfTotal());
+        System.out.println("Orden optimo (PD): " + solPD);
+        System.out.printf("Tiempo de ejecucion: %.4f ms%n", duracionPD);
+
+        String archivoPD = nombreArchivo + "_programacionDinamica.txt";
+
+        Solution resultadoPD = new Solution(
+            solPD.getCrfTotal(),
+            solPD.getProgramacionOptima()
+        );
+
+        GuardarResultado.guardar(resultadoPD, archivoPD);
+        System.out.println("Resultado de programacion dinamica guardado en: " + archivoPD);
+
+        scanner.close();
+
+
     }
 
     // ===================== Metodos auxiliares =====================
@@ -86,9 +114,11 @@ public class Main {
         return farm[indexTablon * 3];
     }
 
+
     public static int wateredValue(int[] farm, int indexTablon) {
         return farm[indexTablon * 3 + 1];
     }
+
 
     public static int priorityValue(int[] farm, int indexTablon){
         return farm[indexTablon * 3 + 2];
