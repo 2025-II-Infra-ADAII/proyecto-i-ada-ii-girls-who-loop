@@ -1,6 +1,6 @@
-# Informe de Complejidad — Problema de la Mochila 0/1
+# Informe de Complejidad — El problema del riego óptimo
 
-En este informe se presentan los análisis de **complejidad temporal** y **espacial** de las soluciones implementadas al problema de la mochila: fuerza bruta, programación dinámica y algoritmo voraz. Se utilizará notación matemática estándar para expresar el costo en función del número de objetos \(n\) y la capacidad de la mochila \(W\).
+En este informe se presentan los análisis de **complejidad temporal** y **espacial** de las soluciones implementadas al problema del riego óptimo: fuerza bruta, programación dinámica y algoritmo voraz. Se utilizará notación matemática en LaTeX para expresar el costo en función del número de tablones \(n\).
 
 ---
 
@@ -40,24 +40,70 @@ S(n) = O(n)
 
 ### Complejidad temporal
 
-La programación dinámica construye una tabla de tamaño \((n+1) \times (W+1)\).  
-Para cada uno de los \(n\) objetos, se recorren todas las capacidades parciales de la mochila (de 1 a \(W\)). Cada celda se calcula en tiempo constante, tomando el máximo entre incluir o no incluir el objeto. Por lo tanto:
-\[
-T(n, W) = O(n \cdot W)
-\]
+#### Número de Estados Únicos
 
-Esto significa que el tiempo crece de manera **lineal con respecto a \(n\)**, pero también depende de \(W\). Como \(W\) es un parámetro numérico y no una dimensión natural del input, se dice que esta complejidad es **pseudopolinomial**: parece polinómica, pero en realidad depende del valor numérico de la capacidad de la mochila. Si \(W\) es muy grande, el tiempo de ejecución se vuelve prohibitivo incluso para valores moderados de \(n\).
+El número total de estados posibles está dado por:
+
+$$
+\text{Estados} = \sum_{k=0}^{n} \binom{n}{k} \cdot T_{\max}
+$$
+
+donde:
+- $\binom{n}{k}$ representa todas las posibles **combinaciones** de $k$ tablones de $n$ totales
+- $T_{\max}$ es el tiempo máximo posible
+
+**Simplificación:**
+
+Si asumimos que el tiempo está **discretizado** o **acotado**, el número de subconjuntos domina:
+
+$$
+\text{Estados} = 2^n \cdot T_{\max}
+$$
+
+Sin embargo, en la práctica, **no todos los tiempos son alcanzables**, por lo que el número real de estados es:
+
+$
+\text{Estados}_{\text{reales}} \approx 2^n \cdot n
+$
+
+Esto porque el tiempo máximo está acotado por $\sum_{i=0}^{n-1} tr_i$.
+
+#### Trabajo por Estado
+
+Por cada estado, el algoritmo:
+1. Itera sobre todos los tablones disponibles en el conjunto $S$
+2. Para cada tablón, hace:
+   - Cálculo del costo: $O(1)$
+   - Creación de nuevo conjunto: $O(|S|)$ en Java (HashSet)
+   - Llamada recursiva: $O(1)$ (por memoización)
+
+**Costo por estado:**
+$$
+T_{\text{estado}} = O(|S|^2) = O(n^2)
+$$
+
+#### Complejidad temporal total
+
+**Desglose:**
+$$
+\boxed{T(n) = O(n^2 \cdot 2^n)}
+$$
+
+- $2^n$: número de subconjuntos posibles de tablones
+- $n^2$: trabajo por cada estado (iteración + operaciones de conjunto)
+
 
 ### Complejidad espacial
 
-- La tabla \(V\) requiere:
-  \[
-  S(n, W) = O(n \cdot W)
-  \]
-- Puede optimizarse guardando solo dos filas (fila actual y anterior), reduciendo a:
-  \[
-  S\_{\text{optimizado}}(W) = O(W)
-  \]
+$$
+\boxed{S(n) = O(n \cdot 2^n)}
+$$
+
+**Desglose:**
+- $2^n$: entradas en el HashMap de memoización
+- $n$: espacio por cada estado (HashSet con máximo $n$ elementos)
+- Pila de recursión: $O(n)$ (profundidad máxima)
+
 
 ---
 
