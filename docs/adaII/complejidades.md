@@ -95,9 +95,7 @@ $$
 
 ### Complejidad espacial
 
-$$
-\boxed{S(n) = O(n \cdot 2^n)}
-$$
+$\boxed{S(n) = O(n \cdot 2^n)}$
 
 **Desglose:**
 - $2^n$: entradas en el HashMap de memoización
