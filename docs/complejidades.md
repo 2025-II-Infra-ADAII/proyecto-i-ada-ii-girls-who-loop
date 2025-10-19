@@ -8,37 +8,31 @@ En este informe se presentan los análisis de **complejidad temporal** y **espac
 
 ## Complejidad
 
-El algoritmo por **fuerza bruta** genera todas las permutaciones posibles de los tablones (de 0 a *n−1*) y calcula el costo total de riego (**CRF**<sub>Π</sub>) para cada una.  
+El algoritmo por **fuerza bruta** genera todas las permutaciones posibles de los tablones (de 0 a *n−1*) y calcula el costo total de riego (**CRF**$_\Pi$) para cada una.  
 En el código, esto ocurre en el método `backtrack`, que recorre recursivamente todas las combinaciones posibles y evalúa cada una con `evaluateCRF`.
 
 ---
 
 ### a) Generación de permutaciones
 
-Para una finca con \( n \) tablones, el número total de permutaciones posibles es:
+Para una finca con $n$ tablones, el número total de permutaciones posibles es:
 
-\[
-n! = n \times (n - 1) \times (n - 2) \times \ldots \times 1
-\]
+$$n! = n \times (n - 1) \times (n - 2) \times \ldots \times 1$$
 
 Cada llamada recursiva elige un tablón no usado y continúa hasta completar una permutación completa.  
 Por tanto, la generación de todas las permutaciones tiene complejidad temporal:
 
-\[
-O(n!)
-\]
+$O(n!)$
 
 ---
 
 ### b) Evaluación del costo (`evaluateCRF`)
 
-Por cada permutación generada, se recorre una vez la lista de tablones (longitud \( n \)) y se calcula el costo total de riego mediante la fórmula:
+Por cada permutación generada, se recorre una vez la lista de tablones (longitud $n$) y se calcula el costo total de riego mediante la fórmula:
 
-\[
-CRF_{\Pi} = \sum_{i=0}^{n-1} p_i \cdot \max \left( 0, (t_{\Pi_i} + tr_i) - ts_i \right)
-\]
+$$CRF_\Pi = \sum_{i=0}^{n-1} p_i \cdot \max(0, (t_{\Pi_i} + tr_i) - ts_i)$$
 
-Este proceso tiene complejidad lineal \( O(n) \) por permutación.
+Este proceso tiene complejidad lineal $O(n)$ por permutación.
 
 ---
 
@@ -46,9 +40,7 @@ Este proceso tiene complejidad lineal \( O(n) \) por permutación.
 
 Combinando ambos factores:
 
-\[
-T(n) = O(n!) \times O(n) = O(n \cdot n!)
-\]
+$$T(n) = O(n!) \times O(n) = O(n \cdot n!)$$
 
 Esto significa que el tiempo de ejecución crece **extremadamente rápido** a medida que aumenta el número de tablones.
 
@@ -58,7 +50,7 @@ Esto significa que el tiempo de ejecución crece **extremadamente rápido** a me
 | 8  | 40,320                   | 322,560                  |
 | 10 | 3,628,800                | 36,288,000               |
 
-Por esta razón, el enfoque de fuerza bruta solo es útil para **tamaños pequeños de finca** (por ejemplo, hasta 10 tablones) y resulta **impracticable** para valores grandes de *n*.
+Por esta razón, el enfoque de fuerza bruta solo es útil para **tamaños pequeños de finca** (por ejemplo, hasta 10 tablones) y resulta **impracticable** para valores grandes de $n$.
 
 ---
 
@@ -66,21 +58,19 @@ Por esta razón, el enfoque de fuerza bruta solo es útil para **tamaños peque�
 
 Se almacenan las siguientes estructuras:
 
-- Un arreglo `current` de tamaño \( n \).  
-- Un arreglo `used` de tamaño \( n \).  
-- Una estructura auxiliar `best` que guarda la mejor permutación encontrada.
+- Un arreglo `current` de tamaño $n$  
+- Un arreglo `used` de tamaño $n$  
+- Una estructura auxiliar `best` que guarda la mejor permutación encontrada
 
 Por tanto, la complejidad espacial es:
 
-\[
-O(n)
-\]
+$O(n)$
 
 ---
 
 ## Corrección
 
-El algoritmo de **fuerza bruta siempre encuentra la solución óptima**, porque:
+El algoritmo de **fuerza bruta** siempre encuentra la **solución óptima**, porque:
 
 1. **Explora exhaustivamente todo el espacio de soluciones.**  
    El método `backtrack` genera todas las posibles permutaciones de los tablones sin omitir ninguna.
@@ -91,47 +81,42 @@ El algoritmo de **fuerza bruta siempre encuentra la solución óptima**, porque:
 3. **Selecciona la de menor costo.**  
    Se compara el costo actual con el mejor encontrado y se actualiza si es menor.
 
-Por tanto, en teoría y en la práctica (salvo errores de precisión o limitaciones de memoria para valores grandes de *n*), el algoritmo devuelve siempre **la respuesta correcta**, es decir, **la programación óptima de riego**.
+Por tanto, en teoría y en la práctica (salvo errores de precisión o limitaciones de memoria para valores grandes de $n$), el algoritmo devuelve siempre **la respuesta correcta**, es decir, **la programación óptima de riego**.
 
-# Programación Dinámica
 
-## Caracterización de la estructura de una solución óptima
+## 2. Programación dinámica
 
-El problema del riego óptimo presenta una **subestructura óptima**, ya que la decisión de regar un tablón en un momento determinado influye en el costo total, pero el subproblema restante (regar los tablones no seleccionados) mantiene la misma forma.
+### Caracterización de la estructura de una solución óptima
+
+El problema del **riego óptimo** presenta una **subestructura óptima**, ya que la decisión de regar un tablón en un momento determinado influye en el costo total, pero el subproblema restante (regar los tablones no seleccionados) mantiene la misma naturaleza.
 
 Podemos definir un **subproblema** como:
 
-\[
-DP(S, t) = \text{costo mínimo de regar los tablones del conjunto } S \text{ comenzando en el tiempo } t
-\]
+$$DP(S, t) = \text{costo mínimo de regar los tablones del conjunto } S \text{ comenzando en el tiempo } t$$
 
 donde:
-- \( S \subseteq \{0, 1, 2, \ldots, n-1\} \) es el conjunto de tablones restantes por regar.  
-- \( t \) es el tiempo acumulado actual (momento en que empieza a regarse el siguiente tablón).
+- $S \subseteq \{0, 1, 2, \ldots, n-1\}$ es el conjunto de tablones restantes por regar  
+- $t$ es el tiempo acumulado actual (momento en que se iniciará el riego del siguiente tablón)
 
 La idea es **dividir y vencer**: resolver el costo mínimo para todos los subconjuntos de tablones posibles, aprovechando resultados previos mediante **memoización**.
 
 ---
 
-## Definición recursiva del valor de una solución óptima
+### Definición recursiva del valor de una solución óptima
 
 La recurrencia que define la programación dinámica es:
 
-\[
-DP(S, t) = \min_{i \in S} \Big[ p_i \cdot \max(0, (t + tr_i) - ts_i) + DP(S - \{i\}, t + tr_i) \Big]
-\]
+$$DP(S, t) = \min_{i \in S} [ p_i \cdot \max(0, (t + tr_i) - ts_i) + DP(S - \{i\}, t + tr_i) ]$$
 
 con caso base:
 
-\[
-DP(\emptyset, t) = 0
-\]
+$$DP(\emptyset, t) = 0$$
 
-Esto significa que, para cada subconjunto \( S \), se intenta regar cada tablón \( i \) en primer lugar y se suma su costo de sufrimiento con el costo óptimo de regar los demás.
+Esto significa que, para cada subconjunto $S$, se intenta regar cada tablón $i$ en primer lugar y se suma su costo de sufrimiento con el costo óptimo de regar los demás.
 
 ---
 
-## Descripción del algoritmo
+### Descripción del algoritmo
 
 1. **Inicialización:** se crea una tabla o `HashMap` donde cada clave representa un subconjunto de tablones (por ejemplo, un entero binario) y su valor el costo mínimo asociado.  
 2. **Cálculo recursivo:**  
@@ -140,95 +125,80 @@ Esto significa que, para cada subconjunto \( S \), se intenta regar cada tablón
 3. **Construcción de la solución:**  
    - A partir de las decisiones óptimas almacenadas, se reconstruye la secuencia de riego que minimiza el CRF total.
 
-El algoritmo se implementa mediante una función recursiva con memoización (`HashMap`) o una tabla de tamaño \( 2^n \).
+El algoritmo se implementa mediante una función recursiva con memoización (`HashMap`) o una tabla de tamaño $2^n$.
 
 ---
 
-## Complejidad temporal
+### Complejidad temporal
 
-### Número de estados únicos
+#### Número de Estados Únicos
 
 El número total de estados posibles está dado por:
 
-\[
-\text{Estados} = \sum_{k=0}^{n} \binom{n}{k} \cdot T_{\max}
-\]
+$$\text{Estados} = \sum_{k=0}^{n} \binom{n}{k} \cdot T_{\max}$$
 
 donde:
-- \( \binom{n}{k} \) representa todas las posibles combinaciones de \( k \) tablones de \( n \) totales.
-- \( T_{\max} \) es el tiempo máximo posible de regado acumulado.
+- $\binom{n}{k}$ representa todas las posibles **combinaciones** de $k$ tablones de $n$ totales  
+- $T_{\max}$ es el tiempo máximo posible de regado acumulado
 
 **Simplificación:**
 
-Si asumimos que el tiempo está **discretizado o acotado**, el número de subconjuntos domina:
+Si asumimos que el tiempo está **discretizado** o **acotado**, el número de subconjuntos domina:
 
-\[
-\text{Estados} = 2^n \cdot T_{\max}
-\]
+$\text{Estados} = 2^n \cdot T_{\max}$
 
-En la práctica, no todos los tiempos son alcanzables, por lo que:
+Sin embargo, en la práctica, **no todos los tiempos son alcanzables**, por lo que el número real de estados es:
 
-\[
-\text{Estados}_{\text{reales}} \approx 2^n \cdot n
-\]
+$\text{Estados}_{\text{reales}} \approx 2^n \cdot n$
 
-ya que el tiempo máximo está acotado por \( \sum_{i=0}^{n-1} tr_i \).
+Esto porque el tiempo máximo está acotado por $\sum_{i=0}^{n-1} tr_i$.
 
 ---
 
-### Trabajo por estado
+#### Trabajo por Estado
 
 Por cada estado, el algoritmo:
+1. Itera sobre todos los tablones disponibles en el conjunto $S$  
+2. Para cada tablón, hace:
+   - Cálculo del costo: $O(1)$  
+   - Creación de nuevo conjunto: $O(|S|)$ en Java (HashSet)  
+   - Llamada recursiva: $O(1)$ (por memoización)
 
-1. Itera sobre todos los tablones disponibles en el conjunto \( S \).  
-2. Para cada tablón:
-   - Calcula el costo: \( O(1) \)  
-   - Crea un nuevo conjunto: \( O(|S|) \)  
-   - Hace una llamada recursiva (memoizada): \( O(1) \)
-
-Por tanto, el costo por estado es:
-
-\[
-T_{\text{estado}} = O(|S|^2) = O(n^2)
-\]
+**Costo por estado:**  
+$T_{\text{estado}} = O(|S|^2) = O(n^2)$
 
 ---
 
-### Complejidad temporal total
+#### Complejidad temporal total
 
-\[
-\boxed{T(n) = O(n^2 \cdot 2^n)}
-\]
+**Desglose:**  
+$\boxed{T(n) = O(n^2 \cdot 2^n)}$
 
-- \( 2^n \): número de subconjuntos posibles de tablones  
-- \( n^2 \): trabajo por cada estado (iteraciones + operaciones sobre conjuntos)
+- $2^n$: número de subconjuntos posibles de tablones  
+- $n^2$: trabajo por cada estado (iteración + operaciones de conjunto)
 
-Aunque sigue siendo exponencial, **es mucho más eficiente que la fuerza bruta** \( O(n \cdot n!) \), permitiendo resolver instancias de tamaño medio.
-
----
-
-## Complejidad espacial
-
-El espacio requerido se debe principalmente a la tabla de memoización y a la pila de recursión.
-
-\[
-\boxed{S(n) = O(n \cdot 2^n)}
-\]
-
-**Desglose:**
-- \( 2^n \): número de subconjuntos posibles almacenados.  
-- \( n \): tamaño promedio de cada estado (número de elementos en el subconjunto).  
-- Pila de recursión: \( O(n) \) (profundidad máxima).
+Aunque sigue siendo exponencial, **es mucho más eficiente que la fuerza bruta** $O(n \cdot n!)$, permitiendo resolver instancias de tamaño medio.
 
 ---
 
-## Corrección
+### Complejidad espacial
 
-El algoritmo de programación dinámica **garantiza la solución óptima** porque:
+$\boxed{S(n) = O(n \cdot 2^n)}$
 
-1. Se **evalúan todos los subconjuntos posibles** de tablones.  
-2. Usa **memoización**, por lo que cada subproblema se resuelve solo una vez.  
-3. Cumple los **principios de optimalidad de Bellman**: la solución óptima del problema completo depende únicamente de las soluciones óptimas de sus subproblemas.
+**Desglose:**  
+- $2^n$: entradas en el HashMap de memoización  
+- $n$: espacio por cada estado (HashSet con máximo $n$ elementos)  
+- Pila de recursión: $O(n)$ (profundidad máxima)
+
+---
+
+### Corrección
+
+El algoritmo de programación dinámica **garantiza la solución óptima**, porque:
+
+1. Evalúa **todos los subconjuntos posibles** de tablones  
+2. Usa **memoización**, por lo que cada subproblema se resuelve una sola vez  
+3. Cumple los **principios de optimalidad de Bellman**, donde la solución óptima global se construye a partir de las soluciones óptimas de los subproblemas
 
 Por lo tanto, este método **siempre produce la programación de riego con el menor costo total posible**, a diferencia del voraz, que puede fallar en algunos casos.
 
