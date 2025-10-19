@@ -349,6 +349,7 @@ El enfoque voraz es **rápido y eficiente** $O(n \log n)$ y genera resultados **
 
 Ejemplo de ejecución para 10 tablones (`10_tablones.txt`):
 
+![ejecución para 10 tablones](/docs/imagenes/Ejemplo_10tablones.png)
 
 Esta evidencia demuestra la correcta ejecución del algoritmo, su tiempo eficiente y el cálculo final del costo total $CRF_{\Pi}$.
 
