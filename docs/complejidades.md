@@ -204,41 +204,160 @@ Por lo tanto, este método **siempre produce la programación de riego con el me
 
 ---
 
-## 3. Algoritmo voraz (greedy por razón valor/peso)
+## 3. Algoritmo voraz (Greedy por razón ts / (p * tr))
 
+En un algoritmo voraz (Greedy), la idea central es tomar siempre la mejor decisión local posible en cada paso, aunque no garantice que sea la óptima (como sí lo hace fuerza bruta o la programación dinamica).
+
+Se dice que es “basada por razón”, cuando cada elemento (tablón) se evalúa mediante una razón o proporción numérica que combina distintos factores del problema.
+
+Luego, el algoritmo ordena o selecciona los elementos de acuerdo con esa razón que representa su eficiencia o urgencia.
 ### Complejidad temporal
 
-El algoritmo voraz comienza calculando la razón valor/peso de cada objeto, lo que requiere:
-\[
-O(n)
-\]
+El algoritmo voraz implementado en la clase `EstrategiaVoraz` utiliza la siguiente heurística:
 
-Luego, se ordenan los objetos según esta razón, lo cual domina el costo total, ya que el ordenamiento eficiente requiere:
-\[
-O(n \log n)
-\]
+$$
+h(i) = \frac{ts_i}{p_i \cdot tr_i}
+$$
 
-Finalmente, se recorre la lista ordenada para llenar la mochila, con un costo lineal:
-\[
-O(n)
-\]
+donde:  
+- \( ts_i \): tiempo de supervivencia del tablón \( i \)  
+- \( tr_i \): tiempo de riego del tablón \( i \)  
+- \( p_i \): prioridad asignada al tablón \( i \)
 
-Por tanto, la complejidad total es:
-\[
-T(n) = O(n \log n)
-\]
+El procedimiento general del algoritmo se compone de los siguientes pasos:
 
-Esto convierte al algoritmo voraz en el más eficiente en tiempo entre las tres aproximaciones. Sin embargo, a diferencia de la programación dinámica, no garantiza la solución óptima, ya que tomar siempre el objeto con mejor razón local no asegura la mejor combinación global.
+1. **Creación de la lista de índices**  
+   Se genera una lista que representa cada tablón de la finca.  
+
+   $$
+   [0, 1, 2, \ldots, n-1]
+   $$
+
+   donde \( n \) representa el número total de tablones. 
+
+   Esta proceso recorre todos los tablones una vez, por lo que su complejidad es:
+
+   $$
+   T_1(n) = O(n)
+   $$
+
+
+2. **Ordenamiento según la heurística**  
+
+   Cada tablón se ordena con base en su valor heurístico \( h(i) \), empleando el método `sort()` utilizando un comparador (`Comparator.comparingDouble`). de Java. Este método usa internamente **Timsort**, cuyo costo promedio y peor caso es:
+
+   $$
+   T_2(n) = O(n \log n)
+   $$
+
+   En este paso **domina el costo total**, ya que \( O(n \log n) \) crece más rápidamente que las fases lineales.
+
+3. **Cálculo del costo total \( CRF_{\Pi} \)**  
+   Una vez ordenada la lista, se recorre secuencialmente para calcular:
+
+   $$
+   \begin{align*}
+   \text{finRiego}_i &= t_{\text{actual}} + tr_i \\
+   \text{retraso}_i &= \max(0, \text{finRiego}_i - ts_i) \\
+   \text{penalización}_i &= p_i \cdot \text{retraso}_i 
+   \end{align*}
+   $$
+
+   Se acumula el costo total (`costoTotal += penalizacion`).
+   $$ \begin{align*} 
+   CRF_{\Pi} &= \sum_{i=1}^{n} \text{penalización}_i
+   \end{align*}
+   $$`
+
+   Este cálculo se realiza una sola vez para cada tablón, por lo tanto, el proceso que realiza es lineal. Su costo lineal es de:
+
+   $$
+   T_3(n) = O(n)
+   $$
+
+Sumando los tres pasos realizados:
+
+$$
+T(n) = T_1(n) + T_2(n) + T_3(n) = O(n) + O(n \log n) + O(n)
+$$
+
+Por lo tanto, la complejidad total del algoritmo viene dada por:
+
+$$
+\boxed{T(n) = O(n \log n)}
+$$
+
+El costo dominante proviene del **ordenamiento**, lo que hace que la estrategia voraz tenga una **complejidad temporal de `O(n log n)`**. 
+
+
+Esto la convierte en una solución **eficiente en tiempo**, especialmente adecuada para entradas grandes (por ejemplo, 1000 tablones). Sin embargo, como en todo enfoque voraz, **no garantiza una solución óptima global**, ya que la decisión de ordenamiento se basa en una **heurística local**.
+
 
 ### Complejidad espacial
 
-- Lista de objetos con razón valor/peso: \(O(n)\).
-- No se requiere matriz adicional.
+Durante la ejecución se utilizan las siguientes estructuras:
 
-Así:
-\[
-S(n) = O(n)
-\]
+1. **Listas y arreglos de entrada:**  
+   - `ts`, `tr`, `p` → cada uno de tamaño \( O(n) \).
+2. **Lista auxiliar de índices (`List<Integer> indices`)**  
+   Almacena los identificadores de los tablones a ordenar → \( O(n) \).
+3. **Arreglo `orden[]` con la programación final**  
+   Guarda el orden en que se riegan los tablones → \( O(n) \)`.
+4. **Variables escalares:**  
+   `tiempoActual`, `costoTotal`, `index`, etc. → \( O(1) \).
+
+El espacio crece linealmente con el número de tablones, no se utilizan matrices ni estructuras adicionales complejas. Por lo tanto, la complejidad total es de:
+
+$$
+\boxed{S(n) = O(n)}
+$$
+
+ 
+Como se dice anteriormente la estrategia voraz requiere **espacio lineal**, directamente proporcional al número de tablones procesados. Es eficiente y manejable incluso para instancias de gran tamaño (p. ej., 1000 o más tablones).
+
+
+### Corrección
+
+##### **¿El algoritmo voraz siempre da la respuesta correcta?**
+
+No siempre. Ya que el algoritmo voraz **no garantiza la solución óptima global**, ya que toma decisiones **locales** en función de la heurística:
+
+$$
+h(i) = \frac{ts_i}{p_i \cdot tr_i}
+$$
+
+
+Esto prioriza los tablones que ofrecen una mejor relación entre supervivencia, prioridad y tiempo de riego, pero sin considerar el efecto acumulado de las decisiones sobre el resto del conjunto.
+
+
+##### **Casos donde el algoritmo es correcto**
+
+El algoritmo produce la **solución óptima** cuando se cumplen las siguientes condiciones:
+
+1. Los tablones son **independientes** entre sí (regar uno no afecta el tiempo de supervivencia de los demás).
+2. La heurística preserva la **propiedad de optimalidad local**, es decir, cada elección local es compatible con la óptima global.
+3. Los valores \( ts_i, tr_i, p_i \) presentan una **relación monótona**, por ejemplo, los tablones de mayor prioridad también tienen mayor supervivencia o menor tiempo de riego.
+
+En estos casos, la decisión voraz minimiza efectivamente el costo total \( CRF_{\Pi} \).
+
+
+##### **Casos donde el algoritmo falla**
+
+El algoritmo puede **no obtener la solución óptima** cuando:
+
+1. Existen **interdependencias temporales**: regar un tablón tarde puede aumentar significativamente la penalización de otro.  
+2. Se presentan tablones con **alta prioridad y baja supervivencia**: la heurística puede posponerlos en favor de otros con mejor razón \( ts / (p \cdot tr) \), generando una penalización global más alta.  
+3. Los valores \( ts, tr, p \) son **irregulares** o no proporcionales, provocando que la decisión local lleve a un **óptimo local**, pero no al global.
+
+
+El enfoque voraz es **rápido y eficiente** (\( O(n \log n) \)) y genera resultados **cercanos al óptimo** para la mayoría de los casos prácticos.  Sin embargo, al depender de una heurística local, **no garantiza exactitud global** en todas las configuraciones de los datos.
+
+### **Ejemplo**
+
+Ejemplo de ejecución para 10 tablones (`10_tablones.txt`):
+
+
+Esta evidencia demuestra la correcta ejecución del algoritmo, su tiempo eficiente y el cálculo final del costo total \( CRF_{\Pi} \).
 
 ---
 
