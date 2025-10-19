@@ -238,13 +238,26 @@ El procedimiento general del algoritmo se compone de los siguientes pasos:
 
    En este paso **domina el costo total**, ya que $O(n \log n)$ crece más rápidamente que las fases lineales.
 
-4. **Cálculo del costo total $$CRF_{\Pi}$$**  
+4. **Cálculo del costo total $CRF_{\Pi}$**  
    Una vez ordenada la lista, se recorre secuencialmente para calcular:
 
-   - Cálculo del final del riego: $$\text{finRiego}_i = t_{\text{actual}} + tr_i$$
-   - Cálculo del retraso: $$\text{retraso}_i = \max(0, \text{finRiego}_i - ts_i)$$
-   - Cálculo de la penalización: $$\text{penalización}_i = p_i \cdot \text{retraso}_i$$
-   - Se acumula el costo total (`costoTotal += penalizacion`): $$CRF_{\Pi} = \sum_{i=1}^{n} \text{penalización}_i$$
+   - Cálculo del final del riego:
+     
+     
+     $finRiego_i = t_{actual} + tr_i$
+   
+     
+   - Cálculo del retraso:
+
+        $$\text{retraso}_i = \max(0, \text{finRiego}_i - ts_i)$$
+     
+   - Cálculo de la penalización:
+
+        $$\text{penalización}_i = p_i \cdot \text{retraso}_i$$
+     
+   - Se acumula el costo total (`costoTotal += penalizacion`):
+
+        $$CRF_{\Pi} = \sum_{i=1}^{n} \text{penalización}_i$$
 
    Este cálculo se realiza una sola vez para cada tablón, por lo tanto, el proceso que realiza es lineal. Su costo lineal es de: $$T_3(n) = O(n)$$
 
