@@ -211,6 +211,9 @@ En un algoritmo voraz (Greedy), la idea central es tomar siempre la mejor decisi
 Se dice que es “basada por razón”, cuando cada elemento (tablón) se evalúa mediante una razón o proporción numérica que combina distintos factores del problema.
 
 Luego, el algoritmo ordena o selecciona los elementos de acuerdo con esa razón que representa su eficiencia o urgencia.
+
+---
+
 ### Complejidad temporal
 
 El algoritmo voraz implementado en la clase `EstrategiaVoraz` utiliza la siguiente heurística:
@@ -278,6 +281,7 @@ El costo dominante proviene del **ordenamiento**, lo que hace que la estrategia 
 
 Esto la convierte en una solución **eficiente en tiempo**, especialmente adecuada para entradas grandes (por ejemplo, 1000 tablones). Sin embargo, como en todo enfoque voraz, **no garantiza una solución óptima global**, ya que la decisión de ordenamiento se basa en una **heurística local**.
 
+---
 
 ### Complejidad espacial
 
@@ -301,6 +305,7 @@ $$
  
 Como se dice anteriormente la estrategia voraz requiere **espacio lineal**, directamente proporcional al número de tablones procesados. Es eficiente y manejable incluso para instancias de gran tamaño (p. ej., 1000 o más tablones).
 
+---
 
 ### Corrección
 
@@ -337,6 +342,8 @@ El algoritmo puede **no obtener la solución óptima** cuando:
 
 
 El enfoque voraz es **rápido y eficiente** $O(n \log n)$ y genera resultados **cercanos al óptimo** para la mayoría de los casos prácticos.  Sin embargo, al depender de una heurística local, **no garantiza exactitud global** en todas las configuraciones de los datos.
+
+---
 
 ### **Ejemplo**
 
