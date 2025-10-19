@@ -1,6 +1,6 @@
 # Informe de Complejidad — El problema del riego óptimo
 
-En este informe se presentan los análisis de **complejidad temporal** y **espacial** de las soluciones implementadas al problema del riego óptimo: fuerza bruta, programación dinámica y algoritmo voraz. Se utilizará notación matemática en LaTeX para expresar el costo en función del número de tablones \(n\).
+En este informe se presentan los análisis de **complejidad temporal** y **espacial** de las soluciones implementadas al problema del riego óptimo: fuerza bruta, programación dinámica y algoritmo voraz.
 
 ---
 
@@ -84,9 +84,9 @@ El algoritmo de **fuerza bruta** siempre encuentra la **solución óptima**, por
 Por tanto, en teoría y en la práctica (salvo errores de precisión o limitaciones de memoria para valores grandes de $n$), el algoritmo devuelve siempre **la respuesta correcta**, es decir, **la programación óptima de riego**.
 
 
-## 2. Programación dinámica
+# 2. Programación dinámica
 
-### Caracterización de la estructura de una solución óptima
+## Caracterización de la estructura de una solución óptima
 
 El problema del **riego óptimo** presenta una **subestructura óptima**, ya que la decisión de regar un tablón en un momento determinado influye en el costo total, pero el subproblema restante (regar los tablones no seleccionados) mantiene la misma naturaleza.
 
@@ -102,7 +102,7 @@ La idea es **dividir y vencer**: resolver el costo mínimo para todos los subcon
 
 ---
 
-### Definición recursiva del valor de una solución óptima
+## Definición recursiva del valor de una solución óptima
 
 La recurrencia que define la programación dinámica es:
 
@@ -116,7 +116,7 @@ Esto significa que, para cada subconjunto $S$, se intenta regar cada tablón $i$
 
 ---
 
-### Descripción del algoritmo
+## Descripción del algoritmo
 
 1. **Inicialización:** se crea una tabla o `HashMap` donde cada clave representa un subconjunto de tablones (por ejemplo, un entero binario) y su valor el costo mínimo asociado.  
 2. **Cálculo recursivo:**  
@@ -125,11 +125,11 @@ Esto significa que, para cada subconjunto $S$, se intenta regar cada tablón $i$
 3. **Construcción de la solución:**  
    - A partir de las decisiones óptimas almacenadas, se reconstruye la secuencia de riego que minimiza el CRF total.
 
-El algoritmo se implementa mediante una función recursiva con memoización (`HashMap`) o una tabla de tamaño $2^n$.
+El algoritmo se implementa mediante una función recursiva con memorización (`HashMap`) o una tabla de tamaño $2^n$.
 
 ---
 
-### Complejidad temporal
+## Complejidad temporal
 
 #### Número de Estados Únicos
 
@@ -169,7 +169,7 @@ $T_{\text{estado}} = O(|S|^2) = O(n^2)$
 
 ---
 
-#### Complejidad temporal total
+## Complejidad temporal total
 
 **Desglose:**  
 $\boxed{T(n) = O(n^2 \cdot 2^n)}$
@@ -181,7 +181,7 @@ Aunque sigue siendo exponencial, **es mucho más eficiente que la fuerza bruta**
 
 ---
 
-### Complejidad espacial
+## Complejidad espacial
 
 $\boxed{S(n) = O(n \cdot 2^n)}$
 
@@ -192,7 +192,7 @@ $\boxed{S(n) = O(n \cdot 2^n)}$
 
 ---
 
-### Corrección
+## Corrección
 
 El algoritmo de programación dinámica **garantiza la solución óptima**, porque:
 
