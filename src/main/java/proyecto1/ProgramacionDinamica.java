@@ -25,7 +25,7 @@ public class ProgramacionDinamica {
     }
 
     // Mapa de memoización
-    static HashMap<Estado, Resultado> memo = new HashMap<>();
+    public static HashMap<Estado, Resultado> memo = new HashMap<>();
 
     // Solucion con programacion dinamica
     public static Solution roPD(int[] finca){
@@ -57,11 +57,11 @@ public class ProgramacionDinamica {
     }
 
     // Clase para representar el estado (conjunto de tablones disponibles + tiempo)
-    static class Estado {
+    public static class Estado {
         HashSet<Integer> tablones;
         int tiempo;
 
-        Estado(HashSet<Integer> tablones, int tiempo) {
+        public Estado(HashSet<Integer> tablones, int tiempo) {
             this.tablones = new HashSet<>(tablones);
             this.tiempo = tiempo;
         }
@@ -81,9 +81,9 @@ public class ProgramacionDinamica {
     }
 
     // Clase para almacenar el resultado de un estado
-    static class Resultado {
-        int costo;
-        int primerTablon; // El tablón óptimo a regar en este estado
+    public static class Resultado {
+        public int costo;
+        public int primerTablon; // El tablón óptimo a regar en este estado
 
         Resultado(int costo, int primerTablon) {
             this.costo = costo;
