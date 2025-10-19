@@ -1,0 +1,305 @@
+# Informe de Complejidad — El problema del riego óptimo
+
+En este informe se presentan los análisis de **complejidad temporal** y **espacial** de las soluciones implementadas al problema del riego óptimo: fuerza bruta, programación dinámica y algoritmo voraz. Se utilizará notación matemática en LaTeX para expresar el costo en función del número de tablones \(n\).
+
+---
+
+# 1. Fuerza Bruta
+
+## Complejidad
+
+El algoritmo por **fuerza bruta** genera todas las permutaciones posibles de los tablones (de 0 a *n−1*) y calcula el costo total de riego (**CRF**<sub>Π</sub>) para cada una.  
+En el código, esto ocurre en el método `backtrack`, que recorre recursivamente todas las combinaciones posibles y evalúa cada una con `evaluateCRF`.
+
+---
+
+### a) Generación de permutaciones
+
+Para una finca con \( n \) tablones, el número total de permutaciones posibles es:
+
+\[
+n! = n \times (n - 1) \times (n - 2) \times \ldots \times 1
+\]
+
+Cada llamada recursiva elige un tablón no usado y continúa hasta completar una permutación completa.  
+Por tanto, la generación de todas las permutaciones tiene complejidad temporal:
+
+\[
+O(n!)
+\]
+
+---
+
+### b) Evaluación del costo (`evaluateCRF`)
+
+Por cada permutación generada, se recorre una vez la lista de tablones (longitud \( n \)) y se calcula el costo total de riego mediante la fórmula:
+
+\[
+CRF_{\Pi} = \sum_{i=0}^{n-1} p_i \cdot \max \left( 0, (t_{\Pi_i} + tr_i) - ts_i \right)
+\]
+
+Este proceso tiene complejidad lineal \( O(n) \) por permutación.
+
+---
+
+### c) Complejidad total
+
+Combinando ambos factores:
+
+\[
+T(n) = O(n!) \times O(n) = O(n \cdot n!)
+\]
+
+Esto significa que el tiempo de ejecución crece **extremadamente rápido** a medida que aumenta el número de tablones.
+
+| n  | Número de permutaciones | Operaciones aproximadas |
+|----|--------------------------|--------------------------|
+| 5  | 120                      | 600                      |
+| 8  | 40,320                   | 322,560                  |
+| 10 | 3,628,800                | 36,288,000               |
+
+Por esta razón, el enfoque de fuerza bruta solo es útil para **tamaños pequeños de finca** (por ejemplo, hasta 10 tablones) y resulta **impracticable** para valores grandes de *n*.
+
+---
+
+### d) Complejidad espacial
+
+Se almacenan las siguientes estructuras:
+
+- Un arreglo `current` de tamaño \( n \).  
+- Un arreglo `used` de tamaño \( n \).  
+- Una estructura auxiliar `best` que guarda la mejor permutación encontrada.
+
+Por tanto, la complejidad espacial es:
+
+\[
+O(n)
+\]
+
+---
+
+## Corrección
+
+El algoritmo de **fuerza bruta siempre encuentra la solución óptima**, porque:
+
+1. **Explora exhaustivamente todo el espacio de soluciones.**  
+   El método `backtrack` genera todas las posibles permutaciones de los tablones sin omitir ninguna.
+
+2. **Evalúa cada permutación usando la misma función de costo `evaluateCRF`.**  
+   Así, todas las combinaciones posibles son medidas bajo el mismo criterio.
+
+3. **Selecciona la de menor costo.**  
+   Se compara el costo actual con el mejor encontrado y se actualiza si es menor.
+
+Por tanto, en teoría y en la práctica (salvo errores de precisión o limitaciones de memoria para valores grandes de *n*), el algoritmo devuelve siempre **la respuesta correcta**, es decir, **la programación óptima de riego**.
+
+# Programación Dinámica
+
+## Caracterización de la estructura de una solución óptima
+
+El problema del riego óptimo presenta una **subestructura óptima**, ya que la decisión de regar un tablón en un momento determinado influye en el costo total, pero el subproblema restante (regar los tablones no seleccionados) mantiene la misma forma.
+
+Podemos definir un **subproblema** como:
+
+\[
+DP(S, t) = \text{costo mínimo de regar los tablones del conjunto } S \text{ comenzando en el tiempo } t
+\]
+
+donde:
+- \( S \subseteq \{0, 1, 2, \ldots, n-1\} \) es el conjunto de tablones restantes por regar.  
+- \( t \) es el tiempo acumulado actual (momento en que empieza a regarse el siguiente tablón).
+
+La idea es **dividir y vencer**: resolver el costo mínimo para todos los subconjuntos de tablones posibles, aprovechando resultados previos mediante **memoización**.
+
+---
+
+## Definición recursiva del valor de una solución óptima
+
+La recurrencia que define la programación dinámica es:
+
+\[
+DP(S, t) = \min_{i \in S} \Big[ p_i \cdot \max(0, (t + tr_i) - ts_i) + DP(S - \{i\}, t + tr_i) \Big]
+\]
+
+con caso base:
+
+\[
+DP(\emptyset, t) = 0
+\]
+
+Esto significa que, para cada subconjunto \( S \), se intenta regar cada tablón \( i \) en primer lugar y se suma su costo de sufrimiento con el costo óptimo de regar los demás.
+
+---
+
+## Descripción del algoritmo
+
+1. **Inicialización:** se crea una tabla o `HashMap` donde cada clave representa un subconjunto de tablones (por ejemplo, un entero binario) y su valor el costo mínimo asociado.  
+2. **Cálculo recursivo:**  
+   - Se exploran todas las opciones posibles de siguiente tablón a regar.  
+   - Si el resultado de un subconjunto ya fue calculado, se reutiliza (memoización).  
+3. **Construcción de la solución:**  
+   - A partir de las decisiones óptimas almacenadas, se reconstruye la secuencia de riego que minimiza el CRF total.
+
+El algoritmo se implementa mediante una función recursiva con memoización (`HashMap`) o una tabla de tamaño \( 2^n \).
+
+---
+
+## Complejidad temporal
+
+### Número de estados únicos
+
+El número total de estados posibles está dado por:
+
+\[
+\text{Estados} = \sum_{k=0}^{n} \binom{n}{k} \cdot T_{\max}
+\]
+
+donde:
+- \( \binom{n}{k} \) representa todas las posibles combinaciones de \( k \) tablones de \( n \) totales.
+- \( T_{\max} \) es el tiempo máximo posible de regado acumulado.
+
+**Simplificación:**
+
+Si asumimos que el tiempo está **discretizado o acotado**, el número de subconjuntos domina:
+
+\[
+\text{Estados} = 2^n \cdot T_{\max}
+\]
+
+En la práctica, no todos los tiempos son alcanzables, por lo que:
+
+\[
+\text{Estados}_{\text{reales}} \approx 2^n \cdot n
+\]
+
+ya que el tiempo máximo está acotado por \( \sum_{i=0}^{n-1} tr_i \).
+
+---
+
+### Trabajo por estado
+
+Por cada estado, el algoritmo:
+
+1. Itera sobre todos los tablones disponibles en el conjunto \( S \).  
+2. Para cada tablón:
+   - Calcula el costo: \( O(1) \)  
+   - Crea un nuevo conjunto: \( O(|S|) \)  
+   - Hace una llamada recursiva (memoizada): \( O(1) \)
+
+Por tanto, el costo por estado es:
+
+\[
+T_{\text{estado}} = O(|S|^2) = O(n^2)
+\]
+
+---
+
+### Complejidad temporal total
+
+\[
+\boxed{T(n) = O(n^2 \cdot 2^n)}
+\]
+
+- \( 2^n \): número de subconjuntos posibles de tablones  
+- \( n^2 \): trabajo por cada estado (iteraciones + operaciones sobre conjuntos)
+
+Aunque sigue siendo exponencial, **es mucho más eficiente que la fuerza bruta** \( O(n \cdot n!) \), permitiendo resolver instancias de tamaño medio.
+
+---
+
+## Complejidad espacial
+
+El espacio requerido se debe principalmente a la tabla de memoización y a la pila de recursión.
+
+\[
+\boxed{S(n) = O(n \cdot 2^n)}
+\]
+
+**Desglose:**
+- \( 2^n \): número de subconjuntos posibles almacenados.  
+- \( n \): tamaño promedio de cada estado (número de elementos en el subconjunto).  
+- Pila de recursión: \( O(n) \) (profundidad máxima).
+
+---
+
+## Corrección
+
+El algoritmo de programación dinámica **garantiza la solución óptima** porque:
+
+1. Se **evalúan todos los subconjuntos posibles** de tablones.  
+2. Usa **memoización**, por lo que cada subproblema se resuelve solo una vez.  
+3. Cumple los **principios de optimalidad de Bellman**: la solución óptima del problema completo depende únicamente de las soluciones óptimas de sus subproblemas.
+
+Por lo tanto, este método **siempre produce la programación de riego con el menor costo total posible**, a diferencia del voraz, que puede fallar en algunos casos.
+
+---
+
+## 3. Algoritmo voraz (greedy por razón valor/peso)
+
+### Complejidad temporal
+
+El algoritmo voraz comienza calculando la razón valor/peso de cada objeto, lo que requiere:
+\[
+O(n)
+\]
+
+Luego, se ordenan los objetos según esta razón, lo cual domina el costo total, ya que el ordenamiento eficiente requiere:
+\[
+O(n \log n)
+\]
+
+Finalmente, se recorre la lista ordenada para llenar la mochila, con un costo lineal:
+\[
+O(n)
+\]
+
+Por tanto, la complejidad total es:
+\[
+T(n) = O(n \log n)
+\]
+
+Esto convierte al algoritmo voraz en el más eficiente en tiempo entre las tres aproximaciones. Sin embargo, a diferencia de la programación dinámica, no garantiza la solución óptima, ya que tomar siempre el objeto con mejor razón local no asegura la mejor combinación global.
+
+### Complejidad espacial
+
+- Lista de objetos con razón valor/peso: \(O(n)\).
+- No se requiere matriz adicional.
+
+Así:
+\[
+S(n) = O(n)
+\]
+
+---
+
+## 4. Resumen comparativo
+
+| Estrategia            | Complejidad temporal | Complejidad espacial                   |
+| --------------------- | -------------------- | -------------------------------------- |
+| Fuerza bruta          | \(O(n \cdot 2^n)\)   | \(O(n)\)                               |
+| Programación dinámica | \(O(n \cdot W)\)     | \(O(n \cdot W)\) ó \(O(W)\) optimizado |
+| Voraz                 | \(O(n \log n)\)      | \(O(n)\)                               |
+
+---
+
+### 4.1 Analisis mediante gráficas
+
+Comparacion teorica de complejidades en tiempo y espacio para las tres estrategias implementadas.
+
+! [Comparativa de tiempo](../imagenes/g1.png)
+
+Analisis de DP con W con n fijo
+
+! [Comparativa DP](../imagenes/g2.png)
+
+Recordar incluir la comparacion de tiempos con respecto a lo implementado. No se incluye en este ejemplo.
+
+# 5. Conclusiones
+
+- La técnica de **fuerza bruta** es conceptualmente sencilla y garantiza la solución óptima, ya que explora todo el espacio de permutaciones. Sin embargo, para valores moderados de \(n\) se vuelve inviable debido a su crecimiento factorial (\(O(n \cdot n!)\)): el coste de tiempo crece muy rápidamente y lo hace impráctico para instancias de tamaño medio o grande.
+
+- La técnica de **programación dinámica** ofrece una solución exacta, basada en una exploración de todos los subconjuntos posibles (o de estados relevantes) junto con memoización, lo que reduce el coste respecto a la fuerza bruta. Aun así, su complejidad sigue siendo exponencial en el número de tareas/tablones (por ejemplo, \(O(n^2 \cdot 2^n)\) en nuestro caso) y además puede depender de un parámetro de tiempo acumulado \(W\) o similar, lo que la hace de carácter **pseudopolinomial** en algunos escenarios. Por tanto, aunque es una opción mucho mejor que la fuerza bruta para tamaños moderados, también se enfrenta a límites reales cuando \(n\) crece o cuando el dominio de los parámetros es grande.
+
+- El **algoritmo voraz** (greedy) se destaca por su eficiencia en tiempo y espacio: suele tener coste polinómico y es muy viable computacionalmente incluso para instancias grandes. No obstante, su principal debilidad es que **no garantiza la solución óptima** en todos los casos, ya que toma decisiones locales “óptimas” sin reconsiderar el impacto global futuro. Por ello, es una buena heurística cuando la rapidez es prioridad, pero debe emplearse con consciencia de sus limitaciones.
+
+---
