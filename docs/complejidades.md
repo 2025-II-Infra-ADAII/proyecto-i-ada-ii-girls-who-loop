@@ -369,13 +369,13 @@ Esta evidencia demuestra la correcta ejecución del algoritmo, su tiempo eficien
 
 Comparacion teorica de complejidades en tiempo y espacio para las tres estrategias implementadas.
 
-! [Comparativa de tiempo](../imagenes/tiempoDinamica.png)
-! [Comparativa de tiempo](../imagenes/tiempoFuerzaBruta.png)
-! [Comparativa de tiempo](../imagenes/tiempoVoraz.png)
+- ! [Comparativa de tiempo](../imagenes/tiempoDinamica.png)
+- ! [Comparativa de tiempo](../imagenes/tiempoFuerzaBruta.png)
+- ! [Comparativa de tiempo](../imagenes/tiempoVoraz.png)
 
 Analisis y comparación teórica para las tres estretegias implementadas
 
-! [Comparativa DP](../imagenes/comparacionTeorica.png)
+- ! [Comparativa DP](../imagenes/comparacionTeorica.png)
 
 # 5. Conclusiones
 
