@@ -359,23 +359,41 @@ Esta evidencia demuestra la correcta ejecución del algoritmo, su tiempo eficien
 
 | Estrategia            | Complejidad temporal | Complejidad espacial                   |
 | --------------------- | -------------------- | -------------------------------------- |
-| Fuerza bruta          | \(O(n \cdot 2^n)\)   | \(O(n)\)                               |
-| Programación dinámica | \(O(n \cdot W)\)     | \(O(n \cdot W)\) ó \(O(W)\) optimizado |
-| Voraz                 | \(O(n \log n)\)      | \(O(n)\)                               |
+| Fuerza bruta          | $$O(n \cdot n!)$$   | $$O(n)$$                               |
+| Programación dinámica | $$O(n^2 \cdot 2^n)$$   | $$O(n \cdot 2^n)$$  |
+| Voraz                 | $$O(n \log n)$$      | $$O(n)$$                               |
 
 ---
 
 ### 4.1 Analisis mediante gráficas
 
 Comparacion teorica de complejidades en tiempo y espacio para las tres estrategias implementadas.
+- Fuerza Bruta: El tiempo de ejecución se dispara rápidamente (crecimiento factorial). La medición solo fue viable para instancias muy pequeñas, confirmando su inviabilidad.
 
-![Comparativa de tiempo](/docs/imagenes/tiempoDinamica.png)
-![Comparativa de tiempo](/docs/imagenes/tiempoFuerzaBruta.png)
-![Comparativa de tiempo](/docs/imagenes/tiempoVoraz.png)
+  ![Comparativa de tiempo](/docs/imagenes/tiempoFuerzaBruta.png)
+
+- Programación Dinámica: Muestra un crecimiento exponencial significativo. Es más escalable que Fuerza Bruta, pero solo viable para tamaños de problema medianos.
+
+  ![Comparativa de tiempo](/docs/imagenes/tiempoDinamica.png)
+
+- Programacion Voraz: El tiempo de ejecución se mantiene en un rango bajo (microsegundos/milsegundos) incluso para 10,000 tablones. Confirma que es la solución más eficiente y escalable debido a su complejidad pero no garantiza una solución optima 
+
+  ![Comparativa de tiempo](/docs/imagenes/tiempoVoraz.png)
 
 Analisis y comparación teórica para las tres estretegias implementadas
 
+Este gráfico compara las funciones de costo teórico en una escala logarítmica para un rango de $n$ de 2 a 20:
+
+
+| Curva | Complejidad Teórica | Significado |
+| :--- | :--- | :--- |
+| **Exponencial (Amarillo)** | $$n!$$ | Representa el costo de **Fuerza Bruta**. Es la que crece más rápido, volviéndose inmanejable después de $n=12$ (la línea se dispara verticalmente a partir de $n=19$). |
+| **Dinámica (Azul)** | $$n^2 \cdot 2^n$$ | Representa el costo de **Programación Dinámica**. Crece de manera exponencial, pero mucho más lentamente que la factorial, confirmando que es una mejora significativa sobre Fuerza Bruta. |
+| **Voraz (Verde)** | $$n \cdot \log_2(n)$$ | Representa el costo del algoritmo **Voraz**. La curva es casi plana en la escala logarítmica. Demuestra que su crecimiento es casi lineal, siendo el **más eficiente** de los tres. |
+
 ![Comparativa DP](/docs/imagenes/comparacionTeorica.png)
+
+El enfoque Voraz es el más rápido y escalable $O(n \log n)$, mientras que Programación Dinámica y Fuerza Bruta tienen un costo ($O(n^2 \cdot 2^n)$ y $O(n \cdot n!)$ respectivamente), limitando su uso a instancias de tamaño pequeño o mediano.
 
 # 5. Conclusiones
 
