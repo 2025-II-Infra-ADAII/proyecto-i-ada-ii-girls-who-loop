@@ -83,6 +83,20 @@ El algoritmo de **fuerza bruta** siempre encuentra la **solución óptima**, por
 
 Por tanto, en teoría y en la práctica (salvo errores de precisión o limitaciones de memoria para valores grandes de $n$), el algoritmo devuelve siempre **la respuesta correcta**, es decir, **la programación óptima de riego**.
 
+### **Ejemplos de ejecución**
+Para una finca con 10 tablones, cada uno con sus respectivos valores de ts (tiempo de supervivencia), tr (tiempo de riego) y p (prioridad), la estrategia de Fuerza Bruta genera todas las posibles permutaciones.
+
+**Resultado obtenido:**
+
+![Comparativa DP](/docs/imagenes/FuerzaBruta10.png)
+
+**Interpretación**
+
+- El algoritmo encontró que regar primero los tablones 3 y 6 minimiza los retrasos acumulados de los tablones con menor tiempo de supervivencia.
+
+- Este orden equilibra el riego de tablones prioritarios y sensibles al tiempo, evitando penalizaciones altas.
+
+Si se incrementara el número de tablones (por ejemplo, a 12 o más), el tiempo crecería de forma drástica, volviéndose computacionalmente inviable.
 
 # 2. Programación dinámica
 
@@ -201,6 +215,26 @@ El algoritmo de programación dinámica **garantiza la solución óptima**, porq
 3. Cumple los **principios de optimalidad de Bellman**, donde la solución óptima global se construye a partir de las soluciones óptimas de los subproblemas
 
 Por lo tanto, este método **siempre produce la programación de riego con el menor costo total posible**, a diferencia del voraz, que puede fallar en algunos casos.
+
+---
+
+### **Ejemplos de ejecución**
+
+Para la misma finca de 10 tablones que antes, se aplicó la estrategia de Programación Dinámica, la cual reduce drásticamente el número de combinaciones necesarias mediante memoización.
+
+### Resultados obtenidos:
+
+![Comparativa DP](/docs/imagenes/Dinamica10.png)
+
+**Interpretación**
+
+El resultado es idéntico al de la Fuerza Bruta, lo que confirma que la Programación Dinámica preserva la exactitud del algoritmo original.
+
+Sin embargo, el tiempo de ejecución fue más de 6 veces menor, demostrando la eficiencia de la reutilización de subresultados mediante memoización.
+
+**Con 12 tablones:**
+
+![Comparativa DP](/docs/imagenes/Dinamica12.png)
 
 ---
 
@@ -384,7 +418,6 @@ Comparacion teorica de complejidades en tiempo y espacio para las tres estrategi
 
 Este gráfico compara las funciones de costo teórico en una escala logarítmica para un rango de $n$ de 2 a 20:
 
-
 | Curva | Complejidad Teórica | Significado |
 | :--- | :--- | :--- |
 | **Exponencial (Amarillo)** | $$n!$$ | Representa el costo de **Fuerza Bruta**. Es la que crece más rápido, volviéndose inmanejable después de $n=12$ (la línea se dispara verticalmente a partir de $n=19$). |
@@ -394,6 +427,30 @@ Este gráfico compara las funciones de costo teórico en una escala logarítmica
 ![Comparativa DP](/docs/imagenes/comparacionTeorica.png)
 
 El enfoque Voraz es el más rápido y escalable $O(n \log n)$, mientras que Programación Dinámica y Fuerza Bruta tienen un costo ($O(n^2 \cdot 2^n)$ y $O(n \cdot n!)$ respectivamente), limitando su uso a instancias de tamaño pequeño o mediano.
+
+### Comparación de resultados experimentales vs complejidad teórica
+
+| n   | Estrategia            | CRF (experimental) | Tiempo (ms) | Complejidad teórica     | Unidades teóricas aproximadas*      |
+|-----|-----------------------|-------------------:|------------:|------------------------:|------------------------------------:|
+| 10  | Voraz                 | 187                | 23.95       | O(n log n)             | ≈ 10 × log₂10 ≈ **33**              |
+| 10  | Fuerza Bruta          | 114                | 142.44      | O(n · n!)              | 10 × 10! = **36,288,000**           |
+| 10  | Programación Dinámica | 114                | 72.93       | O(n² · 2ⁿ)             | 10² × 2¹⁰ = **102,400**             |
+| 100 | Voraz                 | 36,766             | 6.80        | O(n log n)             | ≈ 100 × log₂100 ≈ **664**           |
+| 100 | Fuerza Bruta          | — (no factible)    | —           | O(n · n!)              | ≈ 100 × 100! ≈ **9.33×10¹⁵⁹**       |
+| 100 | Programación Dinámica | — (no factible)    | —           | O(n² · 2ⁿ)             | 100² × 2¹⁰⁰ ≈ **1.26×10³⁴**         |
+
+### Discusión de resultados
+
+**Al comparar los resultados experimentales con la complejidad teórica, se observa una clara coherencia entre ambos comportamientos:**
+
+Para 10 tablones, tanto Fuerza Bruta como Programación Dinámica obtuvieron el mismo costo óptimo (CRF = 114), confirmando su precisión teórica.
+Sin embargo, la Fuerza Bruta tardó más del doble en ejecutarse, tal como predice su complejidad factorial O(n·n!), frente al crecimiento más controlado de la Programación Dinámica.
+
+En contraste, la estrategia Voraz fue mucho más rápida (≈24 ms frente a 142 ms y 73 ms), cumpliendo su complejidad teórica O(n log n).
+Aunque su costo (CRF = 187) fue mayor, sigue siendo una aproximación razonable cuando el tamaño del problema aumenta.
+
+Para 100 tablones, solo la estrategia Voraz pudo ejecutarse exitosamente.
+La Fuerza Bruta y la Programación Dinámica resultaron inviables en tiempo y memoria, validando que su crecimiento exponencial o factorial las hace impracticables a gran escala.
 
 # 5. Conclusiones
 
