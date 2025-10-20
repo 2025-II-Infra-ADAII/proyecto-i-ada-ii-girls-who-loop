@@ -240,3 +240,246 @@ flowchart TD
 - Útil para pruebas o fincas pequeñas.  
 
 ---
+
+## 3.2 Estrategia Voraz 
+
+### Descripción de la técnica
+
+La **estrategia voraz** busca una solución rápida aproximando el orden óptimo sin probar todas las combinaciones.  
+
+Se basa en la heurística: $\text{clave}_i = \text{ts}_i / (p_i \times \text{tr}_i)$ 
+
+Los tablones con **menor valor de clave** se riegan primero, priorizando aquellos con **baja supervivencia, alta prioridad y bajo tiempo de riego**.  
+
+---
+
+### Justificación 
+
+La heurística fue elegida con base en una intuición de balance entre urgencia, tiempo y prioridad:
+
+| Elemento | Cómo influye | Interpretación |
+| --- | --- | --- |
+| `ts_i` (supervivencia) | Cuanto **menor**, más urgente regar | Si el cultivo muere pronto, debe ir antes |
+| `tr_i` (tiempo de riego) | Cuanto **mayor**, más tiempo bloquea el sistema | Evita regar tablones que tarden mucho si no son críticos |
+| `p_i` (prioridad) | Cuanto **mayor**, más costoso el retraso | Debe recibir riego más pronto |
+| → **Heurística combinada** | $\frac{ts_i}{p_i \times tr_i}$ | Integra esas tres dimensiones en una sola medida de “urgencia relativa” |
+
+### 
+
+- Si $(ts_i)$ es pequeño → el numerador es bajo → **el valor total baja**, por lo tanto se riega antes.
+- Si $(p_i)$ o $(tr_i)$ son grandes → el denominador crece → **el valor baja**, lo que también prioriza ese tablón (porque regarlo tarde es costoso o consume mucho tiempo).
+- En conjunto, el algoritmo **favorece los tablones más críticos** (poca supervivencia, alta prioridad, gran tiempo de riego).
+---
+
+#### Comparación con otras heurísticas posibles
+
+| Heurística | Idea | Problema |
+| --- | --- | --- |
+| $$ts_i$$ | Regar primero el que menos sobrevive | Ignora prioridad y duración |
+| $$\frac{ts_i}{tr_i}$$ | Equilibrio entre supervivencia y duración | No considera la importancia del tablón |
+| $$\left(\frac{ts_i}{p_i \times tr_i}\right)$$ | Integra urgencia, duración y prioridad | Más equilibrada y representativa del costo global |
+
+Por eso, **se escogió esta última**, ya que considera los **tres factores relevantes** del modelo del problema.
+
+---
+### Fragmentos de código relevantes
+
+Ordenamiento inicial según la heurística:
+
+```java
+List<Integer> indices = new ArrayList<>();
+for (int i = 0; i < n; i++) indices.add(i);
+
+indices.sort(Comparator.comparingDouble(i ->
+    (double) ts[i] / (p[i] * tr[i])
+));
+```
+
+**Explicación:**  
+- Se crea una lista de índices $(0 .... n−1)$. 
+- Se usa un comparador que evalúa la expresión $ts / (p * tr)$ para cada tablón. 
+- Luego se ordena según la fórmula anterior.  
+- Este paso define el **orden de riego inicial** en $O(n log n)$.  
+
+El cálculo del costo total se realiza después del ordenamiento:
+
+```java
+for (int i : indices) {
+    int finRiego = tiempoActual + tr[i];
+    int retraso = Math.max(0, finRiego - ts[i]);
+    costoTotal += p[i] * retraso;
+    tiempoActual = finRiego;
+}
+```
+
+**Explicación:**  
+Cada tablón se riega secuencialmente según el orden calculado, sumando su penalización si el riego se retrasa.  
+
+```mermaid
+flowchart TD
+    A[Inicio] --> B[Leer finca: arreglos ts, tr, p]
+    B --> C[Calcular razón clave_i = ts_i / p_i * tr_i]
+    C --> D[Ordenar los tablones por valor creciente de clave_i]
+    D --> E[Inicializar:
+        tiempoActual = 0
+        costoTotal = 0
+        orden ]
+    E --> F[Para cada tablón i en orden]
+    F --> G[finRiego = tiempoActual + tr_i]
+    G --> H[retraso = max:0, finRiego - ts_i]
+    H --> I[penalización = p_i * retraso]
+    I --> J[costoTotal += penalización]
+    J --> K[tiempoActual = finRiego]
+    K --> L[Agregar i al arreglo orden]
+    L --> M{Quedan tablones?}
+    M -->|Sí| F
+    M -->|No| N[Devolver Solution: costoTotal, orden]
+    N --> O[Fin]
+```
+
+### Ejemplo
+
+Entradas consideradas (según el enunciado)
+
+- **Finca F₁**  
+$$F_1 = \langle \langle 10, 3, 4 \rangle, \langle 5, 3, 3 \rangle, \langle 2, 2, 1 \rangle, \langle 8, 1, 1 \rangle, \langle 6, 4, 2 \rangle \rangle$$
+
+- **Finca F₂**  
+$$F_2 = \langle \langle 9, 3, 4 \rangle, \langle 5, 3, 3 \rangle, \langle 2, 2, 1 \rangle, \langle 8, 1, 1 \rangle, \langle 6, 4, 2 \rangle \rangle$$
+
+Cada tupla representa un tablón con:
+$$
+(ts_i, tr_i, p_i)
+$$
+donde:
+- $( ts_i )$: tiempo de supervivencia del tablón,
+- $( tr_i )$: tiempo de riego,
+- $( p_i )$: prioridad.
+
+El algoritmo voraz implementado en la clase `EstrategiaVoraz` ordena los tablones según la siguiente clave:
+
+$$
+\text{clave}_i = \frac{ts_i}{p_i \times tr_i}
+$$
+
+Los tablones con **menor valor** de esta expresión son regados primero, ya que representan los más urgentes (menor supervivencia, mayor prioridad o menor tiempo de riego).
+
+
+#### Finca F₁
+
+| i | $ts_i$ | $tr_i$| $p_i$ | $$\frac{ts_i}{p_i \times tr_i}$$ |
+|--:|--:|--:|--:|--:|
+| 0 | 10 | 3 | 4 | 0.833 |
+| 1 | 5 | 3 | 3 | 0.556 |
+| 2 | 2 | 2 | 1 | 1.000 |
+| 3 | 8 | 1 | 1 | 8.000 |
+| 4 | 6 | 4 | 2 | 0.750 |
+
+**Orden voraz:**  
+$$
+[1, 4, 0, 2, 3]
+$$
+
+---
+
+#### Finca F₂
+
+| i | $ts_i$ | $tr_i$| $p_i$ | $$\frac{ts_i}{p_i \times tr_i}$$ |
+|--:|--:|--:|--:|--:|
+| 0 | 9 | 3 | 4 | 0.750 |
+| 1 | 5 | 3 | 3 | 0.556 |
+| 2 | 2 | 2 | 1 | 1.000 |
+| 3 | 8 | 1 | 1 | 8.000 |
+| 4 | 6 | 4 | 2 | 0.750 |
+
+**Orden voraz:**  
+$$[1, 0, 4, 2, 3]$$
+
+El costo individual de regar un tablón $( i )$ en tiempo $( t )$ se define como:
+
+$$CRF(i, t) = p_i \times \max(0, (t + tr_i) - ts_i)$$
+
+y el **costo total de la finca** bajo una programación $( \Pi)$ es:
+$$CRF_{\Pi} = \sum_{i=0}^{n-1} CRF(i, t_i)$$
+
+donde $(t_i)$ es el tiempo acumulado antes de iniciar el riego del tablón $(i)$.
+
+### Resultados para F₁
+#### Orden voraz `[1, 4, 0, 2, 3]`
+
+| Paso | Tablón | $t_{\text{inicio}}$ | $tr_i$ | $t_{\text{fin}}$ | $ts_i$ | Retraso | $p_i$ | Costo |
+|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| 1 | 1 | 0 | 3 | 3 | 5 | 0 | 3 | 0 |
+| 2 | 4 | 3 | 4 | 7 | 6 | 1 | 2 | 2 |
+| 3 | 0 | 7 | 3 | 10 | 10 | 0 | 4 | 0 |
+| 4 | 2 | 10 | 2 | 12 | 2 | 10 | 1 | 10 |
+| 5 | 3 | 12 | 1 | 13 | 8 | 5 | 1 | 5 |
+
+$$CRF_{\text{voraz}}(F_1) = 17$$
+
+#### Solución óptima (fuerza bruta): `[2, 1, 3, 0, 4]`
+
+| Paso | Tablón | $t_{\text{inicio}}$ | $tr_i$ | $t_{\text{fin}}$ | $ts_i$ | Retraso | $p_i$ | Costo |
+|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| 1 | 2 | 0 | 2 | 2 | 2 | 0 | 1 | 0 |
+| 2 | 1 | 2 | 3 | 5 | 5 | 0 | 3 | 0 |
+| 3 | 3 | 5 | 1 | 6 | 8 | 0 | 1 | 0 |
+| 4 | 0 | 6 | 3 | 9 | 10 | 0 | 4 | 0 |
+| 5 | 4 | 9 | 4 | 13 | 6 | 7 | 2 | 14 |
+
+$$CRF_{\text{óptimo}}(F_1) = 14$$
+
+**Conclusión:**  
+$$CRF_{\text{voraz}} = 17 > CRF_{\text{óptimo}} = 14$$
+
+El algoritmo voraz **no produce la solución óptima** en F₁.
+
+---
+
+### Resultados para F₂
+
+#### Orden voraz `[1, 0, 4, 2, 3]`
+
+| Paso | Tablón | $t_{\text{inicio}}$ | $tr_i$ | $t_{\text{fin}}$ | $ts_i$ | Retraso | $p_i$ | Costo |
+|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| 1 | 1 | 0 | 3 | 3 | 5 | 0 | 3 | 0 |
+| 2 | 0 | 3 | 3 | 6 | 9 | 0 | 4 | 0 |
+| 3 | 4 | 6 | 4 | 10 | 6 | 4 | 2 | 8 |
+| 4 | 2 | 10 | 2 | 12 | 2 | 10 | 1 | 10 |
+| 5 | 3 | 12 | 1 | 13 | 8 | 5 | 1 | 5 |
+
+$$CRF_{\text{voraz}}(F_2) = 23$$
+
+#### Solución óptima (fuerza bruta): `[2, 1, 3, 0, 4]`
+
+| Paso | Tablón | $t_{\text{inicio}}$ | $tr_i$ | $t_{\text{fin}}$ | $ts_i$ | Retraso | $p_i$ | Costo |
+|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| 1 | 2 | 0 | 2 | 2 | 2 | 0 | 1 | 0 |
+| 2 | 1 | 2 | 3 | 5 | 5 | 0 | 3 | 0 |
+| 3 | 3 | 5 | 1 | 6 | 8 | 0 | 1 | 0 |
+| 4 | 0 | 6 | 3 | 9 | 9 | 0 | 4 | 0 |
+| 5 | 4 | 9 | 4 | 13 | 6 | 7 | 2 | 14 |
+
+$$CRF_{\text{óptimo}}(F_2) = 14$$
+
+**Conclusión:**
+$$CRF_{\text{voraz}} = 23 > CRF_{\text{óptimo}} = 14$$
+
+El algoritmo voraz **no obtiene la solución óptima** en F₂.
+
+### Análisis comparativo
+
+| Estrategia | Finca | Orden obtenido | $CRF_{\Pi}$ | ¿Óptimo? |
+|-------------|--------|----------------|----------------|-----------|
+| Voraz | F₁ | [1, 4, 0, 2, 3] | 17 | NO |
+| Fuerza Bruta | F₁ | [2, 1, 3, 0, 4] | 14 | SI |
+| Voraz | F₂ | [1, 0, 4, 2, 3] | 23 | NO |
+| Fuerza Bruta | F₂ | [2, 1, 3, 0, 4] | 14 | SI |
+
+- Para las fincas F₁ y F₂, el algoritmo voraz no alcanza la solución óptima obtenida por fuerza bruta.  
+
+- Su desempeño, sin embargo, es eficiente temporalmente $(O(n \log n))$, mientras que la fuerza bruta crece factorialmente.  
+
+### Conclusión
+
+
