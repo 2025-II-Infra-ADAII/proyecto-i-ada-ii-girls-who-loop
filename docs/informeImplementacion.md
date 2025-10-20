@@ -482,4 +482,230 @@ El algoritmo voraz **no obtiene la solución óptima** en F₂.
 
 ### Conclusión
 
+- **Tiempo:** $O(n log n)$ 
+- **Espacio:** $O(n)$  
+- **Ventajas:** Rápido y escalable.  
+- **Desventaja:** No siempre garantiza la solución óptima
 
+
+---
+
+## 3.3 Estrategia Dinámica (Programación Dinámica)
+
+### Descripción de la técnica
+
+La **programación dinámica (DP)** optimiza el cálculo evitando repetir subproblemas ya resueltos mediante **memoización**.  
+Cada estado se representa como:
+
+**DP(S, t)** = costo mínimo para regar los tablones en **S** comenzando en el tiempo **t**
+
+La recurrencia general es:
+
+**DP(S, t) = min [ pᵢ × max(0, t + trᵢ − tsᵢ) + DP(S − {i}, t + trᵢ) ]**,  
+para todo i ∈ S.
+
+En el código, cada estado (S, t) se encapsula en un objeto Estado, y los resultados se almacenan en un HashMap<Estado, Resultado>.
+
+### Explicación de la función principal resolverDP:
+
+- Caso base: si no quedan tablones, el costo es 0.
+
+- Búsqueda: se prueba regar cada tablón disponible como siguiente opción.
+
+- Memoización: si un estado ya fue calculado, se recupera directamente del mapa.
+
+---
+
+### Fragmentos relevantes
+
+Selección del siguiente tablón a regar:
+
+```java
+for (int tablon : tablones_disponibles) {
+    int costoActual = calculoCRF(finca, tiempo_actual, tablon);
+    int nuevoTiempo = tiempo_actual + wateredValue(finca, tablon);
+    Resultado resultadoRestante = resolverDP(finca, nuevoTiempo, nuevosDisponibles);
+    int costoTotal = costoActual + resultadoRestante.costo;
+
+    if (costoTotal < costoMinimo) {
+        costoMinimo = costoTotal;
+        mejorTablon = tablon;
+    }
+}
+```
+
+**Explicación:**  
+- Se prueba cada tablón como siguiente candidato a regar.  
+- Se calcula su costo inmediato (`costoActual`).  
+- Se llama recursivamente a `resolverDP` para los tablones restantes.  
+- Se elige la opción con **menor costo total**.  
+
+Los resultados se almacenan para evitar recomputaciones:
+
+```java
+memo.put(estadoActual, new Resultado(costoMinimo, mejorTablon));
+```
+
+Finalmente, se reconstruye el orden óptimo a partir de las decisiones almacenadas en `memo`, siguiendo los tablones seleccionados en cada estado.
+
+```mermaid
+flowchart TD
+ subgraph subGraph0["Función resolverDP(finca, tiempo, S)"]
+        D{"S está vacío?"}
+        C["Llamar resolverDP: finca, tiempo= :0, S:"]
+        E["Retornar costo 0"]
+        F["Crear estado = S, tiempo"]
+        G{"Estado ya en memo?"}
+        H["Retornar memo:estado:"]
+        I["Inicializar costoMin = ∞"]
+        J["Para cada tablón i en S"]
+        K["Calcular costoActual = p_i * max:0, tiempo + tr_i - ts_i:"]
+        L["nuevoTiempo = tiempo + tr_i"]
+        M["nuevoConjunto = S - :i:"]
+        N["costoTotal = costoActual + resolverDP :finca, nuevoTiempo, nuevoConjunto:"]
+        O{"costoTotal &lt; costoMin?"}
+        P["Actualizar costoMin y mejorTablon"]
+        Q["Continuar con siguiente tablón"]
+        R["Guardar :costoMin, mejorTablon: en memo :estado:"]
+        S["Retornar resultado óptimo"]
+  end
+    A["Inicio"] --> B["Leer finca y crear conjunto S con todos los tablones"]
+    B --> C
+    C --> D
+    D -- Sí --> E
+    D -- No --> F
+    F --> G
+    G -- Sí --> H
+    G -- No --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    M --> N
+    N --> O
+    O -- Sí --> P
+    O -- No --> Q
+    P --> R
+    R --> S
+    S --> T["Reconstruir orden óptimo siguiendo mejorTablon"]
+    T --> U["Construir objeto Solution :costoMin, ordenOptimo:"]
+    U --> V["Fin"]
+
+    style subGraph0 fill:transparent,stroke:none
+```
+
+
+
+---
+
+## 3.4 Integración general y flujo del sistema
+
+El flujo completo se coordina desde la clase Main, que ejecuta las tres estrategias secuencialmente.
+
+Cada bloque mide su tiempo de ejecución con System.nanoTime() y guarda los resultados con GuardarResultado.guardar().
+
+
+```mermaid 
+graph TD
+    A[Inicio del programa] --> B[Lectura del archivo de entrada]
+    B --> C[Estrategia Voraz]
+    B --> D[Fuerza Bruta]
+    B --> E[Programación Dinámica]
+    C --> F[Guardar resultado Voraz]
+    D --> G[Guardar resultado Fuerza Bruta]
+    E --> H[Guardar resultado Programación Dinámica]
+    F --> I[Comparación de resultados]
+    G --> I
+    H --> I
+    I --> J[Fin del programa]
+```
+
+## 4. Pipeline de compilación/ejecución
+
+Se definió un pipeline simple de integración continua en **GitHub Actions** para verificar que el proyecto se ejecute sin errores (no incluye los test).
+
+Archivo: `.github/workflows/build.yml`
+
+```yaml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>proyecto1</groupId>
+    <artifactId>proyecto1</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- Aquí van las dependencias -->
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Plugin de compilación -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Plugin para ejecutar el programa -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>proyecto1.Main</mainClass>
+                </configuration>
+            </plugin>
+
+            <!-- Plugin para ejecutar tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
+```
+
+```
+
+```
+
+
+## Conclusiones 
+
+La implementación del problema del riego óptimo demostró que la elección de la estrategia algorítmica depende completamente del tamaño del problema y la necesidad de precisión.
+Gracias a un diseño modular en Java, fue posible medir y comparar el rendimiento real de cada enfoque en términos de tiempo de ejecución y calidad de la solución.
+
+Las tres estrategias se integraron en un mismo entorno de prueba, lo que permitió una comparación directa y objetiva entre costo total y eficiencia.
+
+- Fuerza Bruta garantiza siempre la solución óptima, pero su crecimiento factorial (O(n·n!)) la vuelve impracticable más allá de 10 tablones.
+
+- Voraz mostró el mejor rendimiento temporal, resolviendo instancias grandes en milisegundos, aunque con una leve pérdida de precisión frente al óptimo.
+
+- Programación Dinámica logró mantener exactitud total con una reducción significativa del tiempo respecto a Fuerza Bruta, pero su complejidad O(n²·2ⁿ) limita su uso a tamaños medianos.
+
+En conclusión, los resultados experimentales confirman las predicciones teóricas de complejidad, evidenciando que cada método es adecuado para un rango de tamaño diferente según el equilibrio deseado entre precisión y eficiencia.
