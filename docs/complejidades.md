@@ -380,7 +380,7 @@ Comparacion teorica de complejidades en tiempo y espacio para las tres estrategi
 
   ![Comparativa de tiempo](/docs/imagenes/tiempoVoraz.png)
 
-Analisis y comparación teórica para las tres estretegias implementadas
+### Analisis y comparación teórica para las tres estretegias implementadas
 
 Este gráfico compara las funciones de costo teórico en una escala logarítmica para un rango de $n$ de 2 a 20:
 
