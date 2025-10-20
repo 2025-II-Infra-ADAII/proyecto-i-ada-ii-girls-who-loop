@@ -369,13 +369,13 @@ Esta evidencia demuestra la correcta ejecución del algoritmo, su tiempo eficien
 
 Comparacion teorica de complejidades en tiempo y espacio para las tres estrategias implementadas.
 
-! [Comparativa de tiempo](../imagenes/g1.png)
+! [Comparativa de tiempo](../imagenes/tiempoDinamica.png)
+! [Comparativa de tiempo](../imagenes/tiempoFuerzaBruta.png)
+! [Comparativa de tiempo](../imagenes/tiempoVoraz.png)
 
-Analisis de DP con W con n fijo
+Analisis y comparación teórica para las tres estretegias implementadas
 
-! [Comparativa DP](../imagenes/g2.png)
-
-Recordar incluir la comparacion de tiempos con respecto a lo implementado. No se incluye en este ejemplo.
+! [Comparativa DP](../imagenes/comparacionTeorica.png)
 
 # 5. Conclusiones
 
