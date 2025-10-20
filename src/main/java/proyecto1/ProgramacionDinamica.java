@@ -30,7 +30,11 @@ public class ProgramacionDinamica {
     // Solucion con programacion dinamica
     public static Solution roPD(int[] finca){
 
-        if (finca == null || finca.length % 3 != 0) {
+        if(finca.length == 0){
+            return new Solution(0, finca);
+        }
+
+        else if (finca == null || finca.length % 3 != 0) {
             throw new IllegalArgumentException("Formato de finca invalido. Debe ser multiplo de 3.");
         }
 
